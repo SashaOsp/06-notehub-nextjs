@@ -55,7 +55,7 @@ export default function App() {
         </button>
         {isModalOpen && (
           <Modal onClose={closeModal}>
-            <NoteForm onEnd={closeModal} />
+            <NoteForm onClose={closeModal} />
           </Modal>
         )}
       </header>
