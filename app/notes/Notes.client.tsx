@@ -1,3 +1,5 @@
+"use client";
+
 import css from "./Notes.module.css";
 import NoteList from "@/components/NoteList/NoteList";
 import Pagination from "@/components/Pagination/Pagination";
