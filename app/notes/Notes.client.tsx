@@ -1,27 +1,26 @@
 "use client";
 
 import css from "./NotesPage.module.css";
+
+import { useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useDebouncedCallback } from "use-debounce";
+
 import NoteList from "@/components/NoteList/NoteList";
 import Pagination from "@/components/Pagination/Pagination";
 import Modal from "@/components/Modal/Modal";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import SearchBox from "@/components/SearchBox/SearchBox";
 
-import { fetchNotes } from "../../lib/api";
-
-import { useState } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useDebouncedCallback } from "use-debounce";
+import { fetchNotes } from "@/lib/api";
 
 export default function NotesClient() {
   const [note, setNote] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const queryKey = ["notes", note, currentPage];
-
-  const { data, isLoading } = useQuery({
-    queryKey,
+  const { data, isLoading, isError, isSuccess } = useQuery({
+    queryKey: ["notes", currentPage, note],
     queryFn: () => fetchNotes(currentPage, note),
     placeholderData: keepPreviousData,
   });
@@ -36,30 +35,35 @@ export default function NotesClient() {
     setCurrentPage(1);
   }, 300);
 
-  const hasPagination = totalPages > 1;
-  const hasNotes = data && !isLoading;
-
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
         <SearchBox onSearch={debouncedSearch} />
-        {hasPagination && (
+
+        {isSuccess && totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
           />
         )}
+
+        {isLoading && !data && <p>Loading...</p>}
+
+        {isError && <p>Error loading notes</p>}
+
         <button onClick={openModal} className={css.button}>
           Create note +
         </button>
-        {isModalOpen && (
-          <Modal onClose={closeModal}>
-            <NoteForm onClose={closeModal} />
-          </Modal>
-        )}
       </header>
-      {hasNotes && <NoteList notes={data.notes} />}
+
+      {data && data.notes.length > 0 && <NoteList notes={data.notes} />}
+
+      {isModalOpen && (
+        <Modal onClose={closeModal}>
+          <NoteForm onClose={closeModal} />
+        </Modal>
+      )}
     </div>
   );
 }
