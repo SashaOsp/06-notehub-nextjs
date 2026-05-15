@@ -1,6 +1,6 @@
 "use client";
 
-import css from "./Notes.module.css";
+import css from "./NotesPage.module.css";
 import NoteList from "@/components/NoteList/NoteList";
 import Pagination from "@/components/Pagination/Pagination";
 import Modal from "@/components/Modal/Modal";
